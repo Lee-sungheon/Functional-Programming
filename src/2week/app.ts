@@ -1,11 +1,13 @@
+import { Item, Cart, DOM_BUTTON_ITEM, Category } from './types';
+
 // D
 const FREE_SHIPPING_PRICE = 20000;
-const TAX_SCALE = 0.1;
+export const TAX_SCALE = 0.1;
 export const [get_shopping_cart, set_shopping_cart] = use_state<Item[]>([]);
 
 
 document.querySelectorAll('button').forEach(button =>
-  button.addEventListener('click', ({target}) => {
+  button.addEventListener('click', ({ target }) => {
     if (target instanceof HTMLButtonElement) {
       const item = get_item_from_button_element(target);
       add_item_to_cart(item);
@@ -31,7 +33,7 @@ export const calc_cart_total = (cart: Cart) => {
 
 // A
 export const set_cart_total_dom = (cart_total: number) => {
-  document.querySelector('.total-price').textContent = `${cart_total.toLocaleString()}원`;
+  document.querySelector('.total-price').textContent = format_total_price(cart_total);
 };
 
 // A
@@ -54,12 +56,12 @@ export const get_buy_buttons_dom = () => get_button_items(document.querySelector
 export const update_tax_dom = (total: number) => set_tax_dom(calc_tax(total, TAX_SCALE));
 
 // A
-export const set_tax_dom = (value: number) => document.querySelector('.tax-price').textContent = `(부가세: ${value.toLocaleString()}원)`;
+export const set_tax_dom = (value: number) => document.querySelector('.tax-price').textContent = format_tax_price(value);
 
 // A
 export const get_item_from_button_element = (element: HTMLButtonElement) => {
   const name = get_text_content(element, '.menu-name');
-  const category = get_text_content(element, '.category');
+  const category = get_text_content(element, '.category') as Category;
   const price = get_text_content(element, '.price');
   const parsed_price = parseInt(get_price_excluding_unit(price, '원'));
 
@@ -103,6 +105,12 @@ export const get_cart_price_list = (cart: Cart) => cart.map(item => get_cart_pri
 // C - cart
 export const calc_tax = (total: number, ratio: number) => multiply(total, ratio);
 
+// C - cart
+export const format_total_price = (value: number) => `${value.toLocaleString()}원`;
+
+// C - cart
+export const format_tax_price = (value: number) => `(부가세: ${value.toLocaleString()}원)`;
+
 // C - cart, item
 export const add_item = <T = Item>(cart: T[], item: T) => add_element_to_array<T>(cart, item);
 
@@ -136,16 +144,3 @@ export function use_state<T>(init_value: T): [() => T, (v: T) => void] {
   return [get_state, set_state];
 }
 
-// Type
-export type Cart = Item[];
-
-export interface Item {
-  name: string;
-  category: string;
-  price: number;
-}
-
-export interface DOM_BUTTON_ITEM extends Item {
-  show_free_shopping_icon: VoidFunction;
-  hide_free_shopping_icon: VoidFunction;
-}
