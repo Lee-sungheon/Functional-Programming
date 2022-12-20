@@ -1,9 +1,6 @@
 describe('FECrash 카페', () => {
   beforeEach(() => {
-    cy.visit({
-      url: 'http://localhost:5500/src/2week',
-      method: 'GET',
-    });
+    cy.visit('index.html');
   });
 
   context('최초 렌더링 시', () => {

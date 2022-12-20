@@ -1,0 +1,14 @@
+{
+  "name": "fecrash-cafe",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "cypress run --browser chrome",
+    "start": "parcel index.html"
+  },
+  "devDependencies": {
+    "cypress": "^12.1.0",
+    "parcel-bundler": "^1.12.5"
+  }
+}
