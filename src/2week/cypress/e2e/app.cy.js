@@ -1,5 +1,4 @@
 // 테스트를 위한 목업 데이터
-// export import 를 위한 webpack 설정까지 하긴 귀찮아서 그냥 몰아놓고 테스트
 const FE_CRASH_CAFE_MENUS = [
   { name: '오늘의 커피', price: 1000 },
   { name: '나이트로 바닐라 크림', price: 3500 },
