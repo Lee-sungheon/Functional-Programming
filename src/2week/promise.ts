@@ -22,9 +22,6 @@ const myPromise = <T = any>(callback: (resolve, reject) => any) => {
 
   const handleCallback = (callback, resolve, reject) => {
     const result = callback(value);
-    console.log('-----------');
-    console.log(result)
-    console.log('-----------');
     if (result?.then && result?.catch) {
       result.then(callback);
     } else {

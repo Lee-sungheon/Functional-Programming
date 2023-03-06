@@ -1,133 +1,64 @@
-const myPromise = (callback) => {
-  const successCallbackList = [];
-  const failCallbackList = [];
-  let value = null;
-  let state = 'pending';
-
-  const resolve = (res) => {
-    value = res;
-    state = 'fulfilled';
-    if (successCallbackList.length > 0) {
-      successCallbackList.shift()(value);
-    }
-  }
-
-  const reject = (err) => {
-    value = err;
-    state = 'rejected';
-    if (failCallbackList.length > 0) {
-      failCallbackList.shift()(value);
-    }
-  }
-
-  callback(resolve, reject);
-
-  const handleCallback = (callback, resolve, reject) => {
-    const result = callback(value);
-
-    if (result?.then && result?.catch) {
-      if (state === 'fulfilled') {
-        result.then(resolve);
-      }
-      if (state === 'rejected') {
-        result.catch(reject);
-      }
-      if (state === 'pending') {
-        successCallbackList.push(() => result.then(resolve));
-        failCallbackList.push(() => result.catch(reject));
-      }
-    } else {
-      resolve(result);
-    }
-  };
-
-  return {
-    then: (cb) => {
-      const successPromise = myPromise((resolve, reject) => {
-        if (state === 'pending') {
-          successCallbackList.push(() => handleCallback(cb, resolve, reject));
+var myPromise = function (callback) {
+    var value = null;
+    var state = 'pending';
+    var successCallbackList = [];
+    var failCallbackList = [];
+    var resolve = function (res) {
+        value = res;
+        state = 'fulfilled';
+        if (successCallbackList.length > 0) {
+            successCallbackList.shift()(value);
         }
-        if (state === 'fulfilled') {
-          handleCallback(cb, resolve, reject);
+    };
+    var reject = function (err) {
+        value = err;
+        state = 'rejected';
+        if (failCallbackList.length > 0) {
+            failCallbackList.shift()(value);
         }
-      });
-      return successPromise;
-      return myPromise((resolve, reject) => {
-        if (state === 'pending') {
-          successCallbackList.push(() => handleCallback(cb, resolve, reject));
+    };
+    var handleCallback = function (callback, resolve, reject) {
+        var result = callback(value);
+        console.log('-----------');
+        console.log(result);
+        console.log('-----------');
+        if ((result === null || result === void 0 ? void 0 : result.then) && (result === null || result === void 0 ? void 0 : result["catch"])) {
+            result.then(callback);
         }
-        if (state === 'fulfilled') {
-          handleCallback(cb, resolve, reject);
+        else {
+            resolve(result);
         }
-      });
-    },
-    catch: (cb) => {
-      return myPromise((resolve, reject) => {
-        if (state === 'pending') {
-          failCallbackList.push(() => handleCallback(cb, resolve, reject));
+    };
+    callback(resolve, reject);
+    return {
+        then: function (cb) {
+            return myPromise(function (resolve, reject) {
+                if (state === 'pending') {
+                    successCallbackList.push(function () {
+                        var res = handleCallback(cb, resolve, reject);
+                        resolve(res);
+                    });
+                }
+                if (state === 'fulfilled') {
+                    var res = handleCallback(cb, resolve, reject);
+                    resolve(res);
+                }
+            });
+        },
+        "catch": function (cb) {
+            if (state === 'pending') {
+                failCallbackList.push(cb);
+            }
+            if (state === 'rejected') {
+                cb(value);
+            }
         }
-        if (state === 'rejected') {
-          handleCallback(cb, resolve, reject);
-        }
-      });
-    }
-  }
-}
-
-myPromise.all = (promises = []) => {
-  return myPromise((resolve, reject) => {
-    let count = promises.length;
-    const returnArray = [];
-    promises.forEach((promise, index) => {
-      promise
-        .then((value) => {
-          returnArray[index] = value;
-          --count;
-          !count && resolve(returnArray);
-        })
-        .catch(reject);
-    });
-  })
-}
-
-myPromise.allSettled = (promises = []) => {
-  return myPromise((resolve, reject) => {
-    let count = promises.length;
-    const returnArray = [];
-    promises.forEach((promise, index) => {
-      promise
-        .then((value) => {
-          returnArray[index] = {status: 'fulfilled', value};
-          --count;
-          !count && resolve(returnArray);
-        })
-        .catch((err) => {
-          console.log('err : ' + err);
-          returnArray[index] = {status: 'rejected', reason: err};
-          --count;
-          if (!count) {
-            console.log(returnArray)
-            resolve(returnArray);
-          }
-        });
-    });
-  })
-}
-//
-// const promise = myPromise((resolve) => setTimeout(() => resolve('resolve!'), 1000));
-// const promise2 = myPromise((resolve) => setTimeout(() => resolve('resolve2!'), 2000));
-const promise3 = myPromise((resolve, reject) => setTimeout(() => reject(new Error('reject!')), 1500));
-
-// promise.then((res) => {
-//   console.log(res);
-//   return myPromise((resolve) => setTimeout(() => resolve(`${res}222`), 1000));
-// }).then((res2) => {
-//   console.log(res2);
-//   return myPromise((resolve) => setTimeout(() => resolve(`${res2}333`), 1000));
-// }).then((res3) => {
-//   console.log(res3);
-// }).catch((err) => console.log(err));
-
-// myPromise.all([promise, promise2]).then(res => console.log(res));
-// myPromise.allSettled([promise3]).then(res => console.log(res)).catch(res => console.log(res));
-myPromise.allSettled([promise3]).then(res => console.log(res));
+    };
+};
+var promise = myPromise(function (resolve) { return setTimeout(function () { return resolve('resolve!'); }, 1000); });
+promise.then(function (res) {
+    console.log(res);
+    return myPromise(function (resolve) { return setTimeout(function () { return resolve("".concat(res, "222")); }, 1000); });
+}).then(function (res2) {
+    console.log(res2);
+});
