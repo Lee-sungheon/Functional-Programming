@@ -28,11 +28,9 @@ const myPromise = callback => {
     if (result?.then && result?.catch) {
       if (state === 'fulfilled') {
         result.then(resolve);
-      }
-      if (state === 'rejected') {
+      } else if (state === 'rejected') {
         result.catch(reject);
-      }
-      if (state === 'pending') {
+      } else if (state === 'pending') {
         successCallbackList.push(() => result.then(resolve));
         failCallbackList.push(() => result.catch(reject));
       }
@@ -47,8 +45,7 @@ const myPromise = callback => {
       return myPromise((resolve, reject) => {
         if (state === 'pending') {
           successCallbackList.push(() => handleCallback(cb, resolve, reject));
-        }
-        if (state === 'fulfilled') {
+        } else if (state === 'fulfilled') {
           handleCallback(cb, resolve, reject);
         }
       });
@@ -57,8 +54,7 @@ const myPromise = callback => {
       return myPromise((resolve, reject) => {
         if (state === 'pending') {
           failCallbackList.push(() => handleCallback(cb, resolve, reject));
-        }
-        if (state === 'rejected') {
+        } else if (state === 'rejected') {
           handleCallback(cb, resolve, reject);
         }
       });
